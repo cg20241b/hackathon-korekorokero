@@ -18,7 +18,8 @@ document.body.appendChild(renderer.domElement);
 // Load font and create text meshes
 const loader = new FontLoader();
 loader.load("/src/fonts/helvetiker_regular.typeface.json", function (font) {
-  const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+  const materialY = new THREE.MeshBasicMaterial({ color: 0x7fc7f8 });
+  const materialOne = new THREE.MeshBasicMaterial({ color: 0xf8b07f });
 
   // Create "Y" mesh
   const yGeometry = new TextGeometry("Y", {
@@ -26,7 +27,7 @@ loader.load("/src/fonts/helvetiker_regular.typeface.json", function (font) {
     size: 5,
     height: 1,
   });
-  const yMesh = new THREE.Mesh(yGeometry, material);
+  const yMesh = new THREE.Mesh(yGeometry, materialY);
   yMesh.position.x = -10; // Place on the left
   scene.add(yMesh);
 
@@ -36,7 +37,7 @@ loader.load("/src/fonts/helvetiker_regular.typeface.json", function (font) {
     size: 5,
     height: 1,
   });
-  const oneMesh = new THREE.Mesh(oneGeometry, material);
+  const oneMesh = new THREE.Mesh(oneGeometry, materialOne);
   oneMesh.position.x = 10; // Place on the right
   scene.add(oneMesh);
 
