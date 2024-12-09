@@ -2,6 +2,7 @@
 import * as THREE from "three";
 import { FontLoader } from "three/examples/jsm/loaders/FontLoader.js";
 import { TextGeometry } from "three/examples/jsm/geometries/TextGeometry.js";
+import { alphabetVertexShader, alphabetFragmentShader, digitVertexShader, digitFragmentShader } from './shaderUtils.js';
 
 // Create scene, camera, and renderer
 const scene = new THREE.Scene();
@@ -29,7 +30,6 @@ const ambientIntensity = 0.341;
 
 // Create a small cube at the center
 const cubeGeometry = new THREE.BoxGeometry(1, 1, 1);
-
 // ShaderMaterial to simulate light emission
 const cubeMaterial = new THREE.ShaderMaterial({
   vertexShader: `
@@ -50,118 +50,6 @@ const cubeMaterial = new THREE.ShaderMaterial({
 // Create the cube mesh
 const cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
 scene.add(cube);
-
-// ShaderMaterial for the alphabet mesh ("Y")
-const alphabetMaterial = new THREE.ShaderMaterial({
-  uniforms: {
-    lightPosition: { value: lightPosition },
-    viewPosition: { value: viewPosition },
-    ambientColor: { value: new THREE.Color(0xADD8E6) }, // Light blue
-    diffuseColor: { value: new THREE.Color(0xADD8E6) },
-    specularColor: { value: new THREE.Color(1, 1, 1) }, // White specular highlight
-    ambientIntensity: { value: ambientIntensity },
-    shininess: { value: 32.0 }, // Moderate shininess
-  },
-  vertexShader: `
-    varying vec3 vNormal;
-    varying vec3 vPosition;
-
-    void main() {
-      vNormal = normalMatrix * normal;
-      vPosition = (modelViewMatrix * vec4(position, 1.0)).xyz;
-      gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-    }
-  `,
-  fragmentShader: `
-    uniform vec3 lightPosition;
-    uniform vec3 viewPosition;
-    uniform vec3 ambientColor;
-    uniform vec3 diffuseColor;
-    uniform vec3 specularColor;
-    uniform float ambientIntensity;
-    uniform float shininess;
-
-    varying vec3 vNormal;
-    varying vec3 vPosition;
-
-    void main() {
-      vec3 normal = normalize(vNormal);
-      vec3 lightDir = normalize(lightPosition - vPosition);
-      vec3 viewDir = normalize(viewPosition - vPosition);
-
-      // Ambient component
-      vec3 ambient = ambientIntensity * ambientColor;
-
-      // Diffuse component
-      float diff = max(dot(normal, lightDir), 0.0);
-      vec3 diffuse = diff * diffuseColor;
-
-      // Specular component (Phong model)
-      vec3 reflectDir = reflect(-lightDir, normal);
-      float spec = pow(max(dot(viewDir, reflectDir), 0.0), shininess);
-      vec3 specular = spec * specularColor;
-
-      vec3 color = ambient + diffuse + specular;
-      gl_FragColor = vec4(color, 1.0);
-    }
-  `,
-});
-
-// ShaderMaterial for the digit mesh ("1")
-const digitMaterial = new THREE.ShaderMaterial({
-  uniforms: {
-    lightPosition: { value: lightPosition },
-    viewPosition: { value: viewPosition },
-    ambientColor: { value: new THREE.Color(0x00FFFF) }, // Complementary color to red
-    diffuseColor: { value: new THREE.Color(0x00FFFF) },
-    specularColor: { value: new THREE.Color(0x00FFFF) }, // Metallic specular
-    ambientIntensity: { value: ambientIntensity },
-    shininess: { value: 64.0 }, // Higher shininess for metallic appearance
-  },
-  vertexShader: `
-    varying vec3 vNormal;
-    varying vec3 vPosition;
-
-    void main() {
-      vNormal = normalMatrix * normal;
-      vPosition = (modelViewMatrix * vec4(position, 1.0)).xyz;
-      gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-    }
-  `,
-  fragmentShader: `
-    uniform vec3 lightPosition;
-    uniform vec3 viewPosition;
-    uniform vec3 ambientColor;
-    uniform vec3 diffuseColor;
-    uniform vec3 specularColor;
-    uniform float ambientIntensity;
-    uniform float shininess;
-
-    varying vec3 vNormal;
-    varying vec3 vPosition;
-
-    void main() {
-      vec3 normal = normalize(vNormal);
-      vec3 lightDir = normalize(lightPosition - vPosition);
-      vec3 viewDir = normalize(viewPosition - vPosition);
-
-      // Ambient component
-      vec3 ambient = ambientIntensity * ambientColor;
-
-      // Diffuse component
-      float diff = max(dot(normal, lightDir), 0.0);
-      vec3 diffuse = diff * diffuseColor;
-
-      // Specular component (Phong model)
-      vec3 reflectDir = reflect(-lightDir, normal);
-      float spec = pow(max(dot(viewDir, reflectDir), 0.0), shininess);
-      vec3 specular = spec * specularColor;
-
-      vec3 color = ambient + diffuse + specular;
-      gl_FragColor = vec4(color, 1.0);
-    }
-  `,
-});
 
 // Add a point light at the cube's position
 const pointLight = new THREE.PointLight(0xffffff, 1, 50);
@@ -184,8 +72,35 @@ document.addEventListener('keydown', function(event) {
 // Load font and create text meshes
 const loader = new FontLoader();
 loader.load("/src/fonts/helvetiker_regular.typeface.json", function (font) {
-  const materialY = new THREE.MeshBasicMaterial({ color: 0x7fc7f8 });
-  const materialOne = new THREE.MeshBasicMaterial({ color: 0xf8b07f });
+  // ShaderMaterial for the alphabet mesh ("Y")
+  const alphabetMaterial = new THREE.ShaderMaterial({
+    uniforms: {
+      lightPosition: { value: lightPosition },
+      viewPosition: { value: viewPosition },
+      ambientColor: { value: new THREE.Color(0x7fc7f8) }, // Light blue
+      diffuseColor: { value: new THREE.Color(0x7fc7f8) },
+      specularColor: { value: new THREE.Color(1, 1, 1) }, // White specular highlight
+      ambientIntensity: { value: ambientIntensity },
+      shininess: { value: 32.0 }, // Moderate shininess
+    },
+    vertexShader: alphabetVertexShader,
+    fragmentShader: alphabetFragmentShader,
+  });
+
+  // ShaderMaterial for the digit mesh ("1")
+  const digitMaterial = new THREE.ShaderMaterial({
+    uniforms: {
+      lightPosition: { value: lightPosition },
+      viewPosition: { value: viewPosition },
+      ambientColor: { value: new THREE.Color(0xf8b07f) }, // Complementary color to red
+      diffuseColor: { value: new THREE.Color(0xf8b07f) },
+      specularColor: { value: new THREE.Color(0xf8b07f) }, // Metallic specular
+      ambientIntensity: { value: ambientIntensity },
+      shininess: { value: 64.0 }, // Higher shininess for metallic appearance
+    },
+    vertexShader: digitVertexShader,
+    fragmentShader: digitFragmentShader,
+  });
 
   // Create "Y" mesh
   const yGeometry = new TextGeometry("Y", {
@@ -193,7 +108,7 @@ loader.load("/src/fonts/helvetiker_regular.typeface.json", function (font) {
     size: 5,
     height: 1,
   });
-  const yMesh = new THREE.Mesh(yGeometry, materialY);
+  const yMesh = new THREE.Mesh(yGeometry, alphabetMaterial);
   yMesh.position.x = -10; // Place on the left
   scene.add(yMesh);
 
@@ -203,7 +118,7 @@ loader.load("/src/fonts/helvetiker_regular.typeface.json", function (font) {
     size: 5,
     height: 1,
   });
-  const oneMesh = new THREE.Mesh(oneGeometry, materialOne);
+  const oneMesh = new THREE.Mesh(oneGeometry, digitMaterial);
   oneMesh.position.x = 10; // Place on the right
   scene.add(oneMesh);
 
@@ -214,11 +129,17 @@ loader.load("/src/fonts/helvetiker_regular.typeface.json", function (font) {
   function animate() {
     requestAnimationFrame(animate);
 
-    // Update view position (if the camera moves)
+    // Update view position and light position
     viewPosition.copy(camera.position);
     lightPosition.copy(cube.position);
+
+    // Update uniforms for alphabet material
     alphabetMaterial.uniforms.viewPosition.value.copy(viewPosition);
+    alphabetMaterial.uniforms.lightPosition.value.copy(lightPosition);
+
+    // Update uniforms for digit material
     digitMaterial.uniforms.viewPosition.value.copy(viewPosition);
+    digitMaterial.uniforms.lightPosition.value.copy(lightPosition);
 
     renderer.render(scene, camera);
   }
