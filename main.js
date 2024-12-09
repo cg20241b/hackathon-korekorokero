@@ -168,6 +168,19 @@ const pointLight = new THREE.PointLight(0xffffff, 1, 50);
 pointLight.position.set(0, 0, 0);
 scene.add(pointLight);
 
+// Add event listeners for key presses
+document.addEventListener('keydown', function(event) {
+  if (event.key === 'w' || event.key === 'W') {
+    cube.position.y += 1; // Move up
+  } else if (event.key === 's' || event.key === 'S') {
+    cube.position.y -= 1; // Move down
+  } else if (event.key === 'a' || event.key === 'A') {
+    camera.position.x -= 1; // Move camera left
+  } else if (event.key === 'd' || event.key === 'D') {
+    camera.position.x += 1; // Move camera right
+  }
+});
+
 // Load font and create text meshes
 const loader = new FontLoader();
 loader.load("/src/fonts/helvetiker_regular.typeface.json", function (font) {
@@ -203,6 +216,7 @@ loader.load("/src/fonts/helvetiker_regular.typeface.json", function (font) {
 
     // Update view position (if the camera moves)
     viewPosition.copy(camera.position);
+    lightPosition.copy(cube.position);
     alphabetMaterial.uniforms.viewPosition.value.copy(viewPosition);
     digitMaterial.uniforms.viewPosition.value.copy(viewPosition);
 
