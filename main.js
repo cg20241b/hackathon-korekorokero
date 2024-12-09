@@ -15,6 +15,36 @@ const renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
+// Create a small cube at the center
+const cubeGeometry = new THREE.BoxGeometry(1, 1, 1);
+
+// ShaderMaterial to simulate light emission
+const cubeMaterial = new THREE.ShaderMaterial({
+  uniforms: {},
+  vertexShader: `
+    void main() {
+      gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+    }
+  `,
+  fragmentShader: `
+    void main() {
+      gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0); // White color
+    }
+  `,
+  blending: THREE.AdditiveBlending,
+  transparent: true,
+  depthWrite: false,
+});
+
+// Create the cube mesh
+const cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
+scene.add(cube);
+
+// Add a point light at the cube's position
+const pointLight = new THREE.PointLight(0xffffff, 1, 50);
+pointLight.position.set(0, 0, 0);
+scene.add(pointLight);
+
 // Load font and create text meshes
 const loader = new FontLoader();
 loader.load("/src/fonts/helvetiker_regular.typeface.json", function (font) {
