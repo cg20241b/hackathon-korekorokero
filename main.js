@@ -23,7 +23,6 @@ const lightPosition = new THREE.Vector3(0, 0, 0);
 const viewPosition = new THREE.Vector3();
 camera.position.set(0, 0, 20);
 camera.lookAt(scene.position);
-viewPosition.copy(camera.position);
 
 // Ambient intensity
 const ambientIntensity = 0.341;
@@ -51,11 +50,6 @@ const cubeMaterial = new THREE.ShaderMaterial({
 const cube = new THREE.Mesh(cubeGeometry, cubeMaterial);
 scene.add(cube);
 
-// Add a point light at the cube's position
-const pointLight = new THREE.PointLight(0xffffff, 1, 50);
-pointLight.position.set(0, 0, 0);
-scene.add(pointLight);
-
 // Add event listeners for key presses
 document.addEventListener('keydown', function(event) {
   if (event.key === 'w' || event.key === 'W') {
@@ -79,7 +73,7 @@ loader.load("/src/fonts/helvetiker_regular.typeface.json", function (font) {
       viewPosition: { value: viewPosition },
       ambientColor: { value: new THREE.Color(0x7fc7f8) }, // Light blue
       diffuseColor: { value: new THREE.Color(0x7fc7f8) },
-      specularColor: { value: new THREE.Color(1, 1, 1) }, // White specular highlight
+      specularColor: { value: new THREE.Color(0x7fc7f8) }, // White specular highlight
       ambientIntensity: { value: ambientIntensity },
       shininess: { value: 32.0 }, // Moderate shininess
     },
@@ -94,7 +88,7 @@ loader.load("/src/fonts/helvetiker_regular.typeface.json", function (font) {
       viewPosition: { value: viewPosition },
       ambientColor: { value: new THREE.Color(0xf8b07f) }, // Complementary color to red
       diffuseColor: { value: new THREE.Color(0xf8b07f) },
-      specularColor: { value: new THREE.Color(0xf8b07f) }, // Metallic specular
+      specularColor: { value: new THREE.Color(1, 1, 1) }, // Metallic specular
       ambientIntensity: { value: ambientIntensity },
       shininess: { value: 64.0 }, // Higher shininess for metallic appearance
     },
@@ -106,7 +100,7 @@ loader.load("/src/fonts/helvetiker_regular.typeface.json", function (font) {
   const yGeometry = new TextGeometry("Y", {
     font: font,
     size: 5,
-    height: 1,
+    depth: 1,
   });
   const yMesh = new THREE.Mesh(yGeometry, alphabetMaterial);
   yMesh.position.x = -10; // Place on the left
@@ -116,7 +110,7 @@ loader.load("/src/fonts/helvetiker_regular.typeface.json", function (font) {
   const oneGeometry = new TextGeometry("1", {
     font: font,
     size: 5,
-    height: 1,
+    depth: 1,
   });
   const oneMesh = new THREE.Mesh(oneGeometry, digitMaterial);
   oneMesh.position.x = 10; // Place on the right
